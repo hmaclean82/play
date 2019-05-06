@@ -6,7 +6,7 @@ import dagger.Component
 import javax.inject.Singleton
 
 /**
- * Application component, which provides all of dependencies into application
+ * Application component, which provides dependencies into the application
  */
 
 @Singleton

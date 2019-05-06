@@ -4,7 +4,10 @@ import android.content.Context
 import dagger.Module
 import dagger.Provides
 import hmac.play.R
-import hmac.play.networking.JSONPlaceholderAPI
+import hmac.play.restAPIs.ISocialData
+import hmac.play.restAPIs.JSONPlaceholderAPI
+import hmac.play.restAPIs.SocialDataService
+import hmac.play.restAPIs.SocialDataServiceImpl
 import okhttp3.*
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
@@ -30,10 +33,10 @@ class NetworkingModule {
 
     @Provides
     @Singleton
-    internal fun provideJSONPlaceholderAPI(builder: Retrofit.Builder, @ForApplication context: Context): JSONPlaceholderAPI {
+    internal fun provideSocialDataService(builder: Retrofit.Builder, @ForApplication context: Context): SocialDataService {
         val baseUrl = HttpUrl.parse(context.resources.getString(R.string.json_placeholder_base_url))
         val retrofit = builder.baseUrl(baseUrl!!).build()
-        return retrofit.create<JSONPlaceholderAPI>(JSONPlaceholderAPI::class.java)
+        return SocialDataServiceImpl(retrofit.create(JSONPlaceholderAPI::class.java))
     }
 
 }

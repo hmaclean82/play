@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        tools:context=".screens.PostsActivity">
+
+    <android.support.v7.widget.RecyclerView
+          android:id="@+id/posts_grid"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"/>
+
+    <FrameLayout
+            android:id="@+id/post_details"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+    </FrameLayout>
+
+    <include
+            android:id="@+id/data_unavailable"
+            layout = "@layout/placeholder_with_button_and_spinner">
+    </include>
+
+</android.support.constraint.ConstraintLayout>

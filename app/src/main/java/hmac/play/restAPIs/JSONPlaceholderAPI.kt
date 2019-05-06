@@ -1,8 +1,8 @@
-package hmac.play.networking
+package hmac.play.restAPIs
 
-import hmac.play.models.Comment
-import hmac.play.models.Post
-import hmac.play.models.User
+import hmac.play.models.raw.Comment
+import hmac.play.models.raw.Post
+import hmac.play.models.raw.User
 import retrofit2.http.GET
 import rx.Observable
 

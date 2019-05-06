@@ -1,4 +1,4 @@
-package hmac.play.models
+package hmac.play.models.raw
 
 import com.google.gson.annotations.SerializedName
 

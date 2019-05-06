@@ -1,9 +1,9 @@
 package hmac.play.injection
 
-import hmac.play.MainActivity
+import hmac.play.screens.PostsActivity
 
 interface ComponentGraph {
 
-    //fun inject(mainActivity: MainActivity)
+    fun inject(postActivity: PostsActivity)
 
 }
