@@ -10,7 +10,9 @@
     <android.support.v7.widget.RecyclerView
           android:id="@+id/posts_grid"
           android:layout_width="match_parent"
-          android:layout_height="match_parent"/>
+          android:layout_height="match_parent"
+          android:scrollbars="vertical"
+          android:verticalScrollbarPosition="right"/>
 
     <FrameLayout
             android:id="@+id/post_details"
@@ -20,7 +22,7 @@
     </FrameLayout>
 
     <include
-            android:id="@+id/data_unavailable"
+            android:id="@+id/placeholder"
             layout = "@layout/placeholder_with_button_and_spinner">
     </include>
 

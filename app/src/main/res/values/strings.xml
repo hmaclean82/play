@@ -2,7 +2,8 @@
     <string name="app_name">play</string>
 
     <string name="retry">retry</string>
-    <string name="data_unavailable">Unable to retrieve data</string>
-
+    <string name="retrieving_data_message">Fetching data...</string>
+    <string name="data_retrieval_error_message">Unable to retrieve data</string>
+    <string name="no_data_message">There is no data to display</string>
 
 </resources>

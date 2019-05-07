@@ -12,6 +12,7 @@ import hmac.play.utils.DisplayUtils
 import hmac.play.utils.RxUtils
 import kotlinx.android.synthetic.main.posts_activity.*
 import kotlinx.android.synthetic.main.placeholder_with_button_and_spinner.*
+import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
@@ -23,7 +24,8 @@ class PostsActivity : AppCompatActivity() {
     lateinit var socialDataService: SocialDataService
 
     private var subscriptions: CompositeSubscription? = null
-    private lateinit var postsAdapter: PostsAdapter
+    private var postsAdapter: PostsAdapter? = null
+    private var currentState: ViewState? = null
 
     private sealed class ViewState {
         object Loading : ViewState()
@@ -41,33 +43,43 @@ class PostsActivity : AppCompatActivity() {
     private fun configure(state: ViewState) {
         when(state) {
             is ViewState.Loading -> {
+                posts_grid.visibility = View.GONE
+                post_details.visibility = View.GONE
+                placeholder.visibility = View.VISIBLE
 
+                progress_spinner.visibility = View.VISIBLE
+                button.visibility = View.INVISIBLE
+                placeholder_text.text = getString(R.string.retrieving_data_message)
             }
             is ViewState.WithData -> {
                 posts_grid.visibility = View.VISIBLE
                 post_details.visibility = View.GONE
-                data_unavailable.visibility = View.GONE
+                placeholder.visibility = View.GONE
 
                 val columns = resources.getInteger(R.integer.posts_grid_columns)
                 val itemSize = DisplayUtils.screenSize(this).x / columns
                 posts_grid.layoutManager = GridLayoutManager(this, columns)
-                posts_grid.adapter = PostsAdapter(state.posts, itemSize)
+                postsAdapter = PostsAdapter(state.posts, itemSize)
+                posts_grid.adapter = postsAdapter
             }
             is ViewState.Empty -> {
                 posts_grid.visibility = View.GONE
                 post_details.visibility = View.GONE
-                data_unavailable.visibility = View.VISIBLE
+                placeholder.visibility = View.VISIBLE
 
-                progress_spinner.visibility = View.GONE
+                progress_spinner.visibility = View.INVISIBLE
+                placeholder_text.text = getString(R.string.no_data_message)
             }
-            is Error -> {
+            is ViewState.Error -> {
                 posts_grid.visibility = View.GONE
                 post_details.visibility = View.GONE
-                data_unavailable.visibility = View.VISIBLE
+                placeholder.visibility = View.VISIBLE
 
-                progress_spinner.visibility = View.GONE
+                progress_spinner.visibility = View.INVISIBLE
+                placeholder_text.text = getString(R.string.data_retrieval_error_message)
             }
         }
+        currentState = state
     }
 
     fun fetchAndDisplayPosts() {
@@ -76,14 +88,19 @@ class PostsActivity : AppCompatActivity() {
             .postsWithUsernames()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .doOnSubscribe { configure(ViewState.Loading) }
+            .doOnSubscribe { if (currentState !is ViewState.WithData) configure(ViewState.Loading) }
             .map<ViewState> { posts ->
                 if (posts.isEmpty())
                     ViewState.Empty
                 else
                     ViewState.WithData(posts)
             }
-            .onErrorReturn { ViewState.Error }
+            .onErrorResumeNext {
+                if (currentState is ViewState.WithData)
+                    Observable.empty()
+                else
+                    Observable.just(ViewState.Error)
+            }
             .subscribe (
                 { configure(it) },
                 {} )
