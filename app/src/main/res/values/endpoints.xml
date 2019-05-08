@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="json_placeholder_base_url" translatable="false">http://jsonplaceholder.typicode.com/</string>
+    <string name="json_placeholder_base_url" translatable="false">https://jsonplaceholder.typicode.com/</string>
 </resources>

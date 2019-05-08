@@ -114,7 +114,7 @@ class PostsActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        RxUtils.getNewCompositeSubIfUnsubscribed(subscriptions)
+        subscriptions = RxUtils.getNewCompositeSubIfUnsubscribed(subscriptions)
         fetchAndDisplayPosts()
     }
 
