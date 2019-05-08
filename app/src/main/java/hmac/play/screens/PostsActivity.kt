@@ -56,11 +56,14 @@ class PostsActivity : AppCompatActivity() {
                 post_details.visibility = View.GONE
                 placeholder.visibility = View.GONE
 
-                val columns = resources.getInteger(R.integer.posts_grid_columns)
-                val itemSize = DisplayUtils.screenSize(this).x / columns
-                posts_grid.layoutManager = GridLayoutManager(this, columns)
-                postsAdapter = PostsAdapter(state.posts, itemSize)
-                posts_grid.adapter = postsAdapter
+                postsAdapter?.also { it.update(state.posts) }
+                    ?: run {
+                        val columns = resources.getInteger(R.integer.posts_grid_columns)
+                        val itemSize = DisplayUtils.screenSize(this).x / columns
+                        posts_grid.layoutManager = GridLayoutManager(this, columns)
+                        postsAdapter = PostsAdapter(state.posts, itemSize)
+                        posts_grid.adapter = postsAdapter
+                    }
             }
             is ViewState.Empty -> {
                 posts_grid.visibility = View.GONE
@@ -76,35 +79,37 @@ class PostsActivity : AppCompatActivity() {
                 placeholder.visibility = View.VISIBLE
 
                 progress_spinner.visibility = View.INVISIBLE
+                button.visibility = View.VISIBLE
+                button.setOnClickListener { fetchAndDisplayPosts() }
                 placeholder_text.text = getString(R.string.data_retrieval_error_message)
             }
         }
         currentState = state
     }
 
-    fun fetchAndDisplayPosts() {
-
-        socialDataService
-            .postsWithUsernames()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .doOnSubscribe { if (currentState !is ViewState.WithData) configure(ViewState.Loading) }
-            .map<ViewState> { posts ->
-                if (posts.isEmpty())
-                    ViewState.Empty
-                else
-                    ViewState.WithData(posts)
-            }
-            .onErrorResumeNext {
-                if (currentState is ViewState.WithData)
-                    Observable.empty()
-                else
-                    Observable.just(ViewState.Error)
-            }
-            .subscribe (
-                { configure(it) },
-                {} )
-
+    private fun fetchAndDisplayPosts() {
+        subscriptions?.add(
+            socialDataService
+                .postsWithUsernames()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe { if (currentState !is ViewState.WithData) configure(ViewState.Loading) }
+                .map<ViewState> { posts ->
+                    if (posts.isEmpty())
+                        ViewState.Empty
+                    else
+                        ViewState.WithData(posts)
+                }
+                .onErrorResumeNext {
+                    if (currentState is ViewState.WithData)
+                        Observable.empty()
+                    else
+                        Observable.just(ViewState.Error)
+                }
+                .subscribe (
+                    { configure(it) },
+                    {} )
+        )
     }
 
     override fun onResume() {
