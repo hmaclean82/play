@@ -5,5 +5,11 @@
     <string name="retrieving_data_message">Fetching data...</string>
     <string name="data_retrieval_error_message">Unable to retrieve data</string>
     <string name="no_data_message">There is no data to display</string>
+    <string name="posted_by">Posted by %s</string>
+
+    <plurals name="commentsCount">
+        <item quantity="one">%d Comment</item>
+        <item quantity="other">%d Comments</item>
+    </plurals>
 
 </resources>

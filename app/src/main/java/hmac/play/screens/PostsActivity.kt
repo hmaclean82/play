@@ -6,19 +6,20 @@ import android.support.v7.widget.GridLayoutManager
 import android.view.View
 import hmac.play.MyApplication
 import hmac.play.R
-import hmac.play.models.PostWithUsername
+import hmac.play.models.PostWithComments
 import hmac.play.restAPIs.SocialDataService
 import hmac.play.utils.DisplayUtils
 import hmac.play.utils.RxUtils
 import kotlinx.android.synthetic.main.posts_activity.*
 import kotlinx.android.synthetic.main.placeholder_with_button_and_spinner.*
+import kotlinx.android.synthetic.main.toolbar_transparent.*
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
 import javax.inject.Inject
 
-class PostsActivity : AppCompatActivity() {
+class PostsActivity : AppCompatActivity(), PostsAdapter.PostClickedListener {
 
     @Inject
     lateinit var socialDataService: SocialDataService
@@ -29,7 +30,8 @@ class PostsActivity : AppCompatActivity() {
 
     private sealed class ViewState {
         object Loading : ViewState()
-        data class WithData(val posts: List<PostWithUsername>) : ViewState()
+        data class Posts(val posts: List<PostWithComments>? = null) : ViewState()
+        data class PostDetails(val post: PostWithComments) : ViewState()
         object Empty : ViewState()
         object Error : ViewState()
     }
@@ -45,37 +47,52 @@ class PostsActivity : AppCompatActivity() {
             is ViewState.Loading -> {
                 posts_grid.visibility = View.GONE
                 post_details.visibility = View.GONE
+                scrim.visibility = View.GONE
+                toolbar.visibility = View.GONE
                 placeholder.visibility = View.VISIBLE
 
                 progress_spinner.visibility = View.VISIBLE
                 button.visibility = View.INVISIBLE
                 placeholder_text.text = getString(R.string.retrieving_data_message)
             }
-            is ViewState.WithData -> {
+            is ViewState.Posts -> {
                 posts_grid.visibility = View.VISIBLE
                 post_details.visibility = View.GONE
                 placeholder.visibility = View.GONE
+                scrim.visibility = View.GONE
+                toolbar.visibility = View.GONE
 
-                postsAdapter?.also { it.update(state.posts) }
-                    ?: run {
-                        val columns = resources.getInteger(R.integer.posts_grid_columns)
-                        val itemSize = DisplayUtils.screenSize(this).x / columns
-                        posts_grid.layoutManager = GridLayoutManager(this, columns)
-                        postsAdapter = PostsAdapter(state.posts, itemSize)
-                        posts_grid.adapter = postsAdapter
-                    }
+                state.posts?.let { createOrRefreshAdapter(it) }
+            }
+            is ViewState.PostDetails -> {
+                posts_grid.visibility = View.VISIBLE
+                post_details.visibility = View.VISIBLE
+                scrim.visibility = View.VISIBLE
+                toolbar.visibility = View.VISIBLE
+                placeholder.visibility = View.GONE
+
+                toolbar_title.text = getString(R.string.posted_by, state.post.author)
+                setSupportActionBar(toolbar)
+                supportActionBar?.setDisplayShowTitleEnabled(false)
+
+                scrim.setOnClickListener { if (currentState is ViewState.PostDetails) onBackPressed() }
+
+                loadPostDetailsFragment(state.post)
             }
             is ViewState.Empty -> {
                 posts_grid.visibility = View.GONE
                 post_details.visibility = View.GONE
+                scrim.visibility = View.GONE
                 placeholder.visibility = View.VISIBLE
 
                 progress_spinner.visibility = View.INVISIBLE
+                button.visibility = View.VISIBLE
                 placeholder_text.text = getString(R.string.no_data_message)
             }
             is ViewState.Error -> {
                 posts_grid.visibility = View.GONE
                 post_details.visibility = View.GONE
+                scrim.visibility = View.GONE
                 placeholder.visibility = View.VISIBLE
 
                 progress_spinner.visibility = View.INVISIBLE
@@ -87,21 +104,47 @@ class PostsActivity : AppCompatActivity() {
         currentState = state
     }
 
+    private fun createOrRefreshAdapter(posts: List<PostWithComments>) {
+        postsAdapter?.also { it.update(posts) }
+            ?: run {
+                val columns = resources.getInteger(R.integer.posts_grid_columns)
+                val itemSize = DisplayUtils.screenSize(this).x / columns
+                posts_grid.layoutManager = GridLayoutManager(this, columns)
+                postsAdapter = PostsAdapter(posts, itemSize)
+                postsAdapter?.setListener(this)
+                posts_grid.adapter = postsAdapter
+            }
+    }
+
+    override fun postClicked(post: PostWithComments) {
+        configure(ViewState.PostDetails(post))
+    }
+
+    private fun loadPostDetailsFragment(post: PostWithComments) {
+        val fragment = PostDetailsFragment.create(post)
+
+        supportFragmentManager.beginTransaction().add(R.id.post_details, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
     private fun fetchAndDisplayPosts() {
+        fun haveDataAlready() = postsAdapter?.itemCount?.let { it > 0 } ?: false
+
         subscriptions?.add(
             socialDataService
-                .postsWithUsernames()
+                .postsWithComments()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe { if (currentState !is ViewState.WithData) configure(ViewState.Loading) }
+                .doOnSubscribe { if (haveDataAlready()) configure(ViewState.Loading) }
                 .map<ViewState> { posts ->
                     if (posts.isEmpty())
                         ViewState.Empty
                     else
-                        ViewState.WithData(posts)
+                        ViewState.Posts(posts)
                 }
                 .onErrorResumeNext {
-                    if (currentState is ViewState.WithData)
+                    if (haveDataAlready())
                         Observable.empty()
                     else
                         Observable.just(ViewState.Error)
@@ -123,5 +166,11 @@ class PostsActivity : AppCompatActivity() {
         subscriptions?.clear()
     }
 
+    override fun onBackPressed() {
+        if (currentState is ViewState.PostDetails)
+            configure(ViewState.Posts())
+
+        super.onBackPressed()
+    }
 
 }
