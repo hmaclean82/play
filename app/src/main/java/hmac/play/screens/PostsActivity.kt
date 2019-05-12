@@ -136,7 +136,7 @@ class PostsActivity : AppCompatActivity(), PostsAdapter.PostClickedListener {
                 .postsWithComments()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe { if (haveDataAlready()) configure(ViewState.Loading) }
+                .doOnSubscribe { if (!haveDataAlready()) configure(ViewState.Loading) }
                 .map<ViewState> { posts ->
                     if (posts.isEmpty())
                         ViewState.Empty
