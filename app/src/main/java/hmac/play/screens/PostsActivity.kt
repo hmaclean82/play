@@ -121,7 +121,7 @@ class PostsActivity : AppCompatActivity(), PostsAdapter.PostClickedListener {
     }
 
     private fun loadPostDetailsFragment(post: PostWithComments) {
-        val fragment = PostDetailsFragment.create(post)
+        val fragment = PostDetailsFragment.newInstance(post)
 
         supportFragmentManager.beginTransaction().add(R.id.post_details, fragment)
             .addToBackStack(null)

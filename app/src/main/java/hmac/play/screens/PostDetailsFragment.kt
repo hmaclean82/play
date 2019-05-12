@@ -17,7 +17,7 @@ class PostDetailsFragment: Fragment() {
     companion object {
         const val POST_ARG = "post_arg"
 
-        fun create(post: PostWithComments): PostDetailsFragment{
+        fun newInstance(post: PostWithComments): PostDetailsFragment{
             val fragment = PostDetailsFragment()
             fragment.arguments = Bundle()
             fragment.arguments?.putString(POST_ARG, Gson().toJson(post))
@@ -25,17 +25,19 @@ class PostDetailsFragment: Fragment() {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
+            = inflater.inflate(R.layout.post_fragment, container, false)
 
-        postWithComments = requireNotNull(Gson().fromJson(arguments?.getString(POST_ARG), PostWithComments::class.java))
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.post_fragment, container, false)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        try {
+            postWithComments =
+                requireNotNull(Gson().fromJson(arguments?.getString(POST_ARG), PostWithComments::class.java))
+        } catch (_: IllegalArgumentException) {
+            view.visibility = View.GONE
+            return
+        }
+
         post_text.text = postWithComments.post.body
         post_title.text = postWithComments.post.title
         footer.text = resources.getQuantityString(R.plurals.commentsCount, postWithComments.comments.size, postWithComments.comments.size)
