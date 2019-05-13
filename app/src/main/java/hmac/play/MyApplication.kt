@@ -5,16 +5,18 @@
 package hmac.play
 
 import android.app.Application
+import android.support.annotation.VisibleForTesting
 import hmac.play.injection.ApplicationComponent
 import hmac.play.injection.DaggerApplicationComponent
 import timber.log.Timber
 
 
-class MyApplication : Application() {
+open class MyApplication : Application() {
     companion object {
         lateinit var instance: MyApplication
     }
 
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     lateinit var component: ApplicationComponent
 
     override fun onCreate() {
@@ -24,7 +26,7 @@ class MyApplication : Application() {
         component = buildComponent()
     }
 
-    fun buildComponent(): ApplicationComponent {
+    private fun buildComponent(): ApplicationComponent {
         return DaggerApplicationComponent.builder()
             .application(this)
             .build()
