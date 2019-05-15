@@ -52,7 +52,7 @@ class PostsActivity : AppCompatActivity(), PostsAdapter.PostClickedListener {
                 placeholder.visibility = View.VISIBLE
 
                 progress_spinner.visibility = View.VISIBLE
-                button.visibility = View.INVISIBLE
+                button.visibility = View.GONE
                 placeholder_text.text = getString(R.string.retrieving_data_message)
             }
             is ViewState.Posts -> {
@@ -85,8 +85,8 @@ class PostsActivity : AppCompatActivity(), PostsAdapter.PostClickedListener {
                 scrim.visibility = View.GONE
                 placeholder.visibility = View.VISIBLE
 
-                progress_spinner.visibility = View.INVISIBLE
-                button.visibility = View.VISIBLE
+                progress_spinner.visibility = View.GONE
+                button.visibility = View.GONE
                 placeholder_text.text = getString(R.string.no_data_message)
             }
             is ViewState.Error -> {
@@ -95,7 +95,7 @@ class PostsActivity : AppCompatActivity(), PostsAdapter.PostClickedListener {
                 scrim.visibility = View.GONE
                 placeholder.visibility = View.VISIBLE
 
-                progress_spinner.visibility = View.INVISIBLE
+                progress_spinner.visibility = View.GONE
                 button.visibility = View.VISIBLE
                 button.setOnClickListener { fetchAndDisplayPosts() }
                 placeholder_text.text = getString(R.string.data_retrieval_error_message)
