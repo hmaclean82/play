@@ -6,14 +6,11 @@ import android.view.View
 import android.widget.TextView
 import hmac.play.data.Social
 import hmac.play.injection.ApplicationComponent
-import hmac.play.models.PostWithComments
 import hmac.play.restAPIs.SocialDataService
 import hmac.play.screens.PostsActivity
 import hmac.play.screens.PostsAdapter
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -25,9 +22,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
-import retrofit2.HttpException
 import rx.Observable
-import java.lang.RuntimeException
 import java.util.concurrent.TimeUnit
 
 @RunWith(RobolectricTestRunner::class)
