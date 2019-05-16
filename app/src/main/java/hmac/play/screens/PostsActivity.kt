@@ -1,5 +1,6 @@
 package hmac.play.screens
 
+import android.animation.ArgbEvaluator
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.GridLayoutManager
@@ -18,6 +19,11 @@ import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
 import javax.inject.Inject
+import android.animation.ValueAnimator
+
+import android.support.v4.content.ContextCompat
+import android.view.animation.DecelerateInterpolator
+
 
 class PostsActivity : AppCompatActivity(), PostsAdapter.PostClickedListener {
 
@@ -76,6 +82,7 @@ class PostsActivity : AppCompatActivity(), PostsAdapter.PostClickedListener {
                 supportActionBar?.setDisplayShowTitleEnabled(false)
 
                 scrim.setOnClickListener { if (currentState is ViewState.PostDetails) onBackPressed() }
+                fadeInScrim()
 
                 loadPostDetailsFragment(state.post)
             }
@@ -123,9 +130,20 @@ class PostsActivity : AppCompatActivity(), PostsAdapter.PostClickedListener {
     private fun loadPostDetailsFragment(post: PostWithComments) {
         val fragment = PostDetailsFragment.newInstance(post)
 
-        supportFragmentManager.beginTransaction().add(R.id.post_details, fragment)
+        supportFragmentManager.beginTransaction()
+            .add(R.id.post_details, fragment)
             .addToBackStack(null)
             .commit()
+    }
+
+    private fun fadeInScrim() {
+        val colorFrom = ContextCompat.getColor(this, R.color.transparent)
+        val colorTo = ContextCompat.getColor(this, R.color.transparent_black)
+        val colorAnimation = ValueAnimator.ofObject(ArgbEvaluator(), colorFrom, colorTo)
+        colorAnimation.duration = 250
+        colorAnimation.interpolator = DecelerateInterpolator()
+        colorAnimation.addUpdateListener { animator -> scrim?.setBackgroundColor(animator.animatedValue as Int) }
+        colorAnimation.start()
     }
 
     private fun fetchAndDisplayPosts() {

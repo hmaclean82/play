@@ -65,8 +65,6 @@ class PostActivitySpec {
     private fun createActivityAndProvideData() {
         every { socialDataService.postsWithComments() } returns Observable.just(Social.derivedPostsWithComments)
         createActivity().setup()
-
-        //runBlocking{ delay(500) }
     }
 
     private fun createActivityProvideDataAndClickFirstItem() {
