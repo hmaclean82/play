@@ -53,7 +53,7 @@ dependencies {
     implementation "io.reactivex:rxandroid:$versions.rxAndroid"
     implementation "com.jakewharton.rxbinding:rxbinding:$versions.rxbinding"
     implementation "com.jakewharton.rxbinding:rxbinding-recyclerview-v7:$versions.rxbinding"
-    implementation "org.greenrobot:eventbus:$versions.eventbus"
+
     kapt "com.google.dagger:dagger-compiler:$versions.dagger"
     implementation "com.google.dagger:dagger:$versions.dagger"
 
@@ -64,12 +64,4 @@ dependencies {
     testImplementation "org.robolectric:shadows-supportv4:$versions.robolectric"
     testImplementation "io.mockk:mockk:$versions.mockk"
 
-    androidTestImplementation "com.android.support:support-annotations:$versions.supportLibrary"
-    androidTestImplementation "com.android.support.test:runner:$versions.testSupportLibrary"
-    androidTestImplementation "com.android.support.test:rules:$versions.testSupportLibrary"
-    androidTestImplementation "com.android.support.test.espresso:espresso-core:$versions.espresso"
-    androidTestImplementation "com.android.support.test.espresso:espresso-intents:$versions.espresso"
-    androidTestImplementation "io.mockk:mockk-android:$versions.mockk"
-
-    kaptAndroidTest "com.google.dagger:dagger-compiler:$versions.dagger"
 }
