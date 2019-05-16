@@ -8,7 +8,6 @@ import android.app.Application
 import android.support.annotation.VisibleForTesting
 import hmac.play.injection.ApplicationComponent
 import hmac.play.injection.DaggerApplicationComponent
-import timber.log.Timber
 
 
 open class MyApplication : Application() {
